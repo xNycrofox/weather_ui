@@ -72,7 +72,7 @@
 
     /* Central 3D-like artwork */
     .artwrap{position:relative;display:flex;align-items:center;justify-content:center;padding-right:380px}
-    .artwrap img.centerpic{width:clamp(520px,44vw,980px);height:auto;filter:drop-shadow(0 24px 60px rgba(0,0,0,.55))}
+    .artwrap img.centerpic{width:clamp(300px,28vw,620px);height:auto;filter:drop-shadow(0 24px 60px rgba(0,0,0,.55))}
     .cloud{filter:drop-shadow(0 24px 60px rgba(0,0,0,.55))}
     .bolt{position:absolute;width:clamp(100px,9vw,170px);left:50%;transform:translateX(-50%);top:120px;animation:blink 2.2s infinite}
     @keyframes blink{0%,85%{opacity:.08} 90%{opacity:1} 100%{opacity:.08}}
@@ -102,6 +102,7 @@
     .tpt .dot{width:8px;height:8px;border-radius:50%;background:#ffcc71;box-shadow:0 0 0 4px rgba(255,204,113,.12);visibility:hidden}
     .tpt.current .dot{visibility:visible}
     .tpt .time{opacity:.62;font:700 12px Manrope}
+    .tpt .temp{font-weight:800;font-size:24px;letter-spacing:.2px;}
     .tick{width:2px;height:8px;background:rgba(255,255,255,.18);border-radius:2px;margin-top:-6px}
 
     .tlnav{position:fixed;right:28px;bottom:64px;display:flex;flex-direction:column;gap:8px;z-index:21}
@@ -148,9 +149,9 @@
           <button id="langEN" data-lang="en">EN</button>
         </div>
         <h5>Links</h5>
-        <a href="https://www.buymeacoffee.com/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0v9a3 3 0 003 3h6a3 3 0 003-3V8z"/><path d="M8 8h8"/></svg> BuyMeACoffee</a>
-        <a href="https://github.com/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 00-3.8 23.4c.6.1.8-.2.8-.5v-1.8c-3.4.8-4.2-1.6-4.2-1.6-.6-1.4-1.5-1.8-1.5-1.8-1.2-.8.1-.8.1-.8 1.3.1 2 . 1.7 2 . 1.3 1.9 2.4 1.3 3 . 1 .1-.9.5-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6.1 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.4 1.2a11.7 11.7 0 016.2 0C16.5 4 17.5 4.3 17.5 4.3c.6 1.7.2 2.9.1 3.2.8.9 1.2 2 1.2 3.3 0 4.7-2.9 5.8-5.6 6.1.5.4.9 1.1.9 2.3v3.4c0 .3.2.6.8.5A12 12 0 0012 .5z"/></svg> GitHub</a>
-        <div class="legal">Impressum · Datenschutzerklärung</div>
+        <a href="https://buymeacoffee.com/muellerelias" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0v9a3 3 0 003 3h6a3 3 0 003-3V8z"/><path d="M8 8h8"/></svg> BuyMeACoffee</a>
+        <a href="https://github.com/xNycrofox/weather_ui" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 00-3.8 23.4c.6.1.8-.2.8-.5v-1.8c-3.4.8-4.2-1.6-4.2-1.6-.6-1.4-1.5-1.8-1.5-1.8-1.2-.8.1-.8.1-.8 1.3.1 2 . 1.7 2 . 1.3 1.9 2.4 1.3 3 . 1 .1-.9.5-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6.1 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.4 1.2a11.7 11.7 0 016.2 0C16.5 4 17.5 4.3 17.5 4.3c.6 1.7.2 2.9.1 3.2.8.9 1.2 2 1.2 3.3 0 4.7-2.9 5.8-5.6 6.1.5.4.9 1.1.9 2.3v3.4c0 .3.2.6.8.5A12 12 0 0012 .5z"/></svg> GitHub</a>
+        <div class="legal"><a href="https://flystart-solutions.com/impressum" target="_blank" rel="noopener" style="color:inherit">Impressum</a> · <a href="#" id="openPrivacy" style="color:inherit">Datenschutzerklärung</a></div>
       </div>
     </div>
 
@@ -190,8 +191,8 @@
         </div>
       </div>
       <div class="artwrap" aria-hidden="true">
-        <!-- Cloud + sun artwork -->
-        <img id="centerArt" class="centerpic" src="https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5YzViNzNkZTgwODE5MWE1ZGFhOGVmMTNmZTA4NzU6ZmlsZV8wMDAwMDAwMDBlYWM2MWY0YjZlYTk4YWM2NmQxN2VkYSIsInRzIjoiNDg3NTIxIiwicCI6InB5aSIsInNpZyI6ImI1NjZiMDNlZWI5YTFiZDlhY2I1OGQzOTllMjhhZDJhNTI1ZTEyOGE2ZjRhMjY4NDE4YjllNWJlNjk5YzM4MDEiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==" alt="Wetterbild"/>
+        <!-- Center artwork image (changes by condition) -->
+        <img id="centerArt" class="centerpic" src="https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5Y2FhNTZlZDFjODE5MTg1M2IwOTc3YzcwODZhZjA6ZmlsZV8wMDAwMDAwMGRhMDA2MjQ2OGQwYTQxOTUxMGY5ZGM1OCIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6ImUxZTFmOTU4YzI4YmMzODk3Nzc5Y2Y4ZjgyYTc4NzIwMjAxNjVlODYxYjZhZTRjYTljYTdiZTJjYzNjZDViYTIiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==" alt="Wetterbild"/>
         <!-- Lightning bolt -->
         <svg class="bolt" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" style="display:none">
           <defs>
@@ -245,6 +246,22 @@
       </div>
       <div class="list" id="results"></div>
       <div class="muted" id="sourceNote" style="margin-top:10px;font:600 12px Manrope">Geocoding via Photon (OSM). Wetterdaten via Bright Sky (DWD).</div>
+    </div>
+  </div>
+
+  <!-- Datenschutz Modal -->
+  <div class="modal" id="privacyModal">
+    <div class="sheet">
+      <div class="modal-close" id="btnClosePrivacy" title="Schließen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+      <h3 style="margin:0 0 10px 4px;font:800 18px Manrope">Datenschutzerklärung</h3>
+      <div class="muted" style="font:600 13px Manrope;line-height:1.6">
+        Diese Seite nutzt den Standort deines Geräts (wenn du zustimmst), um lokale Wetterdaten vom Deutschen Wetterdienst abzurufen.
+        Geodaten werden nur im Browser verarbeitet. Für Geocoding wird die <b>Photon/OSM</b>-API aufgerufen; für das Wetter die <b>Bright&nbsp;Sky</b>-API.
+        Es werden keine Tracking‑Cookies gesetzt. Wir speichern optional zwei Cookies: <b>lang</b> (Sprache) und <b>loc</b> (zuletzt gewählter Ort).
+        Du kannst die Cookies jederzeit in den Browser‑Einstellungen löschen.
+      </div>
     </div>
   </div>
 
@@ -345,11 +362,26 @@
 
   function setLocationLabel(obj){ const parts=[obj.name, obj.state||obj.county, obj.country]; topLoc.textContent = parts.filter(Boolean).join(', '); }
 
+  // ---- FIXED: properly paired try/catch (no stray else) ----
   async function reverseGeocode(lat, lon){
-    try{ const r = await fetch(PHOTON.reverse(lat, lon)); const j = await r.json(); if(j && j.features && j.features[0]){ const p = j.features[0].properties; const country = p.country || ''; setLocationLabel({name:p.city||p.name||p.town||p.village||p.county,state:p.state,country});
-      if(!getCookie('lang')){ LANG = /deutschland|germany|DE/i.test(country)? 'de':'en'; setCookie('lang', LANG); applyLang(); }
-    } else { topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; } }
-    catch{ topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; if(!getCookie('lang')){ LANG = (navigator.language||'').startsWith('de')?'de':'en'; setCookie('lang', LANG); applyLang(); } }
+    try{
+      const r = await fetch(PHOTON.reverse(lat, lon));
+      const j = await r.json();
+      if(j && j.features && j.features[0]){
+        const p = j.features[0].properties;
+        const country = p.country || '';
+        setLocationLabel({name:p.city||p.name||p.town||p.village||p.county,state:p.state,country});
+        if(!getCookie('lang')){
+          LANG = /deutschland|germany/i.test(country) ? 'de' : 'en';
+          setCookie('lang', LANG); applyLang();
+        }
+      } else {
+        topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+      }
+    } catch(e){
+      topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+      if(!getCookie('lang')){ LANG = (navigator.language||'').toLowerCase().startsWith('de')?'de':'en'; setCookie('lang', LANG); applyLang(); }
+    }
   }
 
   function groupByDay(weather){ const map=new Map(); for(const w of weather){ const d=new Date(w.timestamp).toISOString().slice(0,10); if(!map.has(d)) map.set(d,[]); map.get(d).push(w);} return Array.from(map.entries()).map(([date,arr])=>({date,arr})); }
@@ -369,18 +401,18 @@
   }
   function drawSparkline(hours){
     lastHours = hours.slice();
-    const h = 160; const STEP = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width')) || 132; const w = (hours.length-1) * STEP;
+    const h = 160; const STEP = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width')) || 136; const w = (hours.length-1) * STEP;
     sparkSvg.setAttribute('viewBox', `0 0 ${w} ${h}`); sparkSvg.style.width = w + 'px'; sparkWrap.style.width = w + 'px'; tpoints.style.width = w + 'px';
 
-    const temps = hours.map(hh=>hh.temperature); let min = Math.min(...temps), max = Math.max(...temps); const range = Math.max(4, max-min);
-    const paddingTop = 36, paddingBottom = 52; const mid = (h - paddingTop - paddingBottom)/2 + paddingTop; const amp = Math.min(28, (h - paddingTop - paddingBottom) * 0.45);
-    const y = (t)=> mid - ((t - (min+max)/2) / range) * amp;
-
-    const pts = hours.map((hh,i)=>[i*STEP, y(hh.temperature)]); const d = catmullRomPath(pts);
+    // Decorative smooth wave (independent of data)
+    const paddingTop = 48, paddingBottom = 58; const mid = (h - paddingTop - paddingBottom)/2 + paddingTop; const amp = 18; const period = 10; const phase = -Math.PI/6;
+    const pts = hours.map((_,i)=>[i*STEP, mid + Math.sin((i/period)*Math.PI*2 + phase)*amp]);
+    const d = catmullRomPath(pts);
     sparkSvg.innerHTML = `<defs><linearGradient id='lineGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0%' stop-color='rgba(255,255,255,.22)'/><stop offset='100%' stop-color='rgba(255,255,255,.36)'/></linearGradient></defs><path d="${d}" fill="none" stroke="url(#lineGrad)" stroke-width="2" stroke-linecap="round"/>`;
 
+    // Points (temp above, time below); current slot = index 1
     tpoints.innerHTML=''; const fmt = I18N[LANG].timeOpts; const loc = I18N[LANG].weekdayFmt;
-    hours.forEach((hh,i)=>{ const wrap=document.createElement('div'); wrap.className='tpt'+(i===1?' current':''); const dot=document.createElement('div'); dot.className='dot'; const temp=document.createElement('div'); temp.textContent=Math.round(hh.temperature)+'°'; const tm=document.createElement('div'); tm.className='time'; tm.textContent=new Date(hh.timestamp).toLocaleTimeString(loc,fmt); wrap.appendChild(temp); const tick=document.createElement('div'); tick.className='tick'; wrap.appendChild(tick); wrap.appendChild(dot); wrap.appendChild(tm); tpoints.appendChild(wrap); });
+    hours.forEach((hh,i)=>{ const wrap=document.createElement('div'); wrap.className='tpt'+(i===1?' current':''); const dot=document.createElement('div'); dot.className='dot'; const temp=document.createElement('div'); temp.className='temp'; temp.textContent=Math.round(hh.temperature)+'°'; const tm=document.createElement('div'); tm.className='time'; tm.textContent=new Date(hh.timestamp).toLocaleTimeString(loc,fmt); wrap.appendChild(temp); const tick=document.createElement('div'); tick.className='tick'; wrap.appendChild(tick); wrap.appendChild(dot); wrap.appendChild(tm); tpoints.appendChild(wrap); });
   }
   window.addEventListener('resize', ()=>{ if(lastHours.length) drawSparkline(lastHours); });
 
@@ -410,7 +442,7 @@
     rainLayer.style.display = (cond==='rain'||cond==='sleet'||cond==='thunder_rain') ? 'block':'none';
     snowLayer.style.display = (cond==='snow'||cond==='sleet') ? 'block':'none';
 
-    // central art: clouds/sun opacity (only if SVG present)
+    // central art (SVG safety)
     if(cloudGroup && sunGlow){
       if(cond==='sunny'){ cloudGroup.style.opacity = 0; sunGlow.style.opacity = 1; }
       else if(cond==='sunclouds'){ cloudGroup.style.opacity = 1; sunGlow.style.opacity = .85; }
@@ -421,6 +453,20 @@
     if(snowLayer.style.display==='block' && !snowLayer.childElementCount){ for(let i=0;i<50;i++){ const f=document.createElement('div'); f.className='flake'; f.style.left=Math.random()*90+5+'%'; f.style.animationDuration=(2.5+Math.random()*2)+'s'; f.style.opacity=(0.5+Math.random()*0.5).toFixed(2); snowLayer.appendChild(f);} }
   }
 
+  // ======== Art URLs (center images) ========
+  const ARTURLS = {
+    sunclouds: 'https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5YzVhZmUzZDJjODE5MWI4ZGE4YTdmYTEyM2UyZWU6ZmlsZV8wMDAwMDAwMDIyNjQ2MjQzYTc0ZmJkMTc1OWE4MmY3MyIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6IjVjNWRkMzNjMWM2ODJiOGMyNGJmOWNiMGExMzIwZDE5M2M4MWJkNWUzZTZlZTRjNGRiMTZlODI1NWZhYmQ0YzQiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==',
+    rain: 'https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5Y2E5YTZiMzEwODE5MWJhMjJlMDhlYmU1NWYwODk6ZmlsZV8wMDAwMDAwMDMzMTg2MjQ2YmI5M2Q3MzBhOGVhMzIyNCIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6ImEwMjExYjgzNzU5MmIyYjc0M2RkZjRiNTY5Njk3YjhiODJjZTY1MTRlYTE2Njc0YzNlY2FkZTBkOTViZjllYmEiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==',
+    cloudy: 'https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5Y2FhNTZlZDFjODE5MTg1M2IwOTc3YzcwODZhZjA6ZmlsZV8wMDAwMDAwMGRhMDA2MjQ2OGQwYTQxOTUxMGY5ZGM1OCIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6ImUxZTFmOTU4YzI4YmMzODk3Nzc5Y2Y4ZjgyYTc4NzIwMjAxNjVlODYxYjZhZTRjYTljYTdiZTJjYzNjZDViYTIiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==',
+    thunder: 'https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5Y2FiMDRiZmZjODE5MWFmZGEwY2MzOWViMjVkMmY6ZmlsZV8wMDAwMDAwMDFlZjg2MjQzODI0MTFhN2U4ZjFjMTIyMCIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6IjA4N2UxNGNlYWViODJmZThlYzIwM2E4ODQ5YTM5N2E3MzIwNmEzZDBkMTZmNTNlYzViZTczMWM2MWJiYmVmNTUiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==',
+    snow: 'https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5Y2FkOThhZTU0ODE5MWE5NTQ1ZjY4ZDMxNDA3NzY6ZmlsZV8wMDAwMDAwMDFkODA2MjQzOTUyZjYzOWFkNDdhZTNjYSIsInRzIjoiNDg3NTI3IiwicCI6InB5aSIsInNpZyI6IjY4NWY2NWYyZWFhZTMzN2VmOGU2ZGVjODEzMzgwYzhkMWIwZDdlMDY1MmRkMzczNzU0OWI2NTNkYWVmYjJmMDciLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ=='
+  };
+  function updateCenterArt(cond){
+    const img = document.getElementById('centerArt'); if(!img) return;
+    const key = cond==='thunder_rain' ? 'thunder' : cond==='sleet' ? 'rain' : cond==='sunny' ? 'sunclouds' : cond;
+    if(ARTURLS[key]) img.src = ARTURLS[key];
+  }
+
   // ========= Geolocation + saved place =========
   async function locate(){ if(!('geolocation' in navigator)) return null; return new Promise((resolve)=>{ navigator.geolocation.getCurrentPosition( pos=> resolve({lat:pos.coords.latitude, lon:pos.coords.longitude}), ()=> resolve(null), {enableHighAccuracy:true, timeout:7000}); }) }
 
@@ -428,7 +474,8 @@
     applyLang(); setActiveLangButtons();
     const saved = getCookie('loc');
     if(saved){
-      try{ const obj = JSON.parse(saved); setLocationLabel({name:obj.label}); await loadWeather(obj.lat, obj.lon); }catch{ await loadWeather(DEFAULT.lat, DEFAULT.lon); setLocationLabel({name:DEFAULT.label}); }
+      try{ const obj = JSON.parse(saved); setLocationLabel({name:obj.label}); await loadWeather(obj.lat, obj.lon); }
+      catch{ await loadWeather(DEFAULT.lat, DEFAULT.lon); setLocationLabel({name:DEFAULT.label}); }
     }else{
       setLocationLabel({name:DEFAULT.label}); await loadWeather(DEFAULT.lat, DEFAULT.lon);
       const geo = await locate(); if(geo){ await reverseGeocode(geo.lat, geo.lon); await loadWeather(geo.lat, geo.lon); }
@@ -446,8 +493,28 @@
   // Drawer interactions
   btnMenu.addEventListener('click',()=> drawer.classList.toggle('open'));
   document.addEventListener('click',(e)=>{ if(!drawer.contains(e.target) && !btnMenu.contains(e.target)) drawer.classList.remove('open'); });
-  btnDE.addEventListener('click',()=>{ LANG='de'; setCookie('lang','de'); applyLang(); if(lastHours.length) drawSparkline(lastHours); if(lastGroups) renderDays(lastGroups); subtitle.textContent = titleFrom(currentCond); });
-  btnEN.addEventListener('click',()=>{ LANG='en'; setCookie('lang','en'); applyLang(); if(lastHours.length) drawSparkline(lastHours); if(lastGroups) renderDays(lastGroups); subtitle.textContent = titleFrom(currentCond); });
+
+  btnDE.addEventListener('click',()=>{ 
+    LANG='de'; setCookie('lang','de'); applyLang(); 
+    if(lastHours.length) drawSparkline(lastHours); 
+    if(lastGroups) renderDays(lastGroups); 
+    subtitle.textContent = titleFrom(currentCond);
+  });
+
+  btnEN.addEventListener('click',()=>{ 
+    LANG='en'; setCookie('lang','en'); applyLang(); 
+    if(lastHours.length) drawSparkline(lastHours); 
+    if(lastGroups) renderDays(lastGroups); 
+    subtitle.textContent = titleFrom(currentCond);
+  });
+
+  // Privacy modal handlers
+  const privacyModal = document.getElementById('privacyModal');
+  const openPrivacy = document.getElementById('openPrivacy');
+  const btnClosePrivacy = document.getElementById('btnClosePrivacy');
+  if(openPrivacy){ openPrivacy.addEventListener('click',(e)=>{ e.preventDefault(); drawer.classList.remove('open'); privacyModal.classList.add('on'); }); }
+  if(btnClosePrivacy){ btnClosePrivacy.addEventListener('click',()=> privacyModal.classList.remove('on')); }
+  if(privacyModal){ privacyModal.addEventListener('mousedown',(e)=>{ if(e.target===privacyModal) privacyModal.classList.remove('on'); }); }
 
   // Timeline nav buttons
   function stepSize(){ return (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width'))||132)*4 }
@@ -481,7 +548,7 @@
     const future = data.weather.slice(idx);
     const cur = future[0] || data.weather[0];
 
-    const cond = normalizeCondition(cur); setTheme(cond);
+    const cond = normalizeCondition(cur); setTheme(cond); updateCenterArt(cond);
 
     bigTemp.innerHTML = `${Math.round(cur.temperature)}<span class="deg">°C</span>`;
     subtitle.textContent = titleFrom(cond);
@@ -496,6 +563,20 @@
     const byDay = groupByDay(future);
     renderDays(byDay);
   }
+
+  // ---------- Tiny console tests (non-network) ----------
+  (function runTests(){
+    const tests = [];
+    // normalizeCondition
+    tests.push(['sunny-from-clear', normalizeCondition({condition:'clear', temperature:25, precipitation:0, cloud_cover:5})==='sunny']);
+    tests.push(['rain-from-precip', normalizeCondition({condition:'', temperature:12, precipitation:1})==='rain']);
+    tests.push(['snow-from-temp', normalizeCondition({condition:'', temperature:0, precipitation:1})==='snow']);
+    // spark path generation
+    const p = catmullRomPath([[0,10],[10,10],[20,10]]); tests.push(['path-nonempty', typeof p==='string' && p.startsWith('M ')]);
+    // reverseGeocode structure (no stray else)
+    const src = reverseGeocode.toString(); tests.push(['rev-else-check', !/\}\s*else\s*\}/.test(src)]);
+    console.log('%cWeatherUI tests', 'font-weight:700'); tests.forEach(t=> console.log((t[1]?'✅':'❌'), t[0]));
+  })();
 
   boot();
 </script>
