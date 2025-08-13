@@ -3,227 +3,248 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>WeatherUI</title>
+  <title>Wetter — DWD (Clone)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Font tuned closer to mock -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#0f0f10; --bg2:#1a1b1d; --text:#e9eaec; --muted:#a1a6ad; --glass:rgba(255,255,255,0.06);
-      --accent:#ffb000; --accent-2:#ffd66b; --rain:#79b7ff; --ok:#4ad395;
-      --line:#ffd36b;
-      --hour-width:120px; /* spacing between hour points */
+      --text:#e9eaec; --muted:#a1a6ad; --glass:rgba(255,255,255,0.06);
+      --accent:#ffb000; --accent-2:#ffd66b; --rain:#79b7ff; --line:rgba(255,255,255,.30);
+      --hour-width:136px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 700px at 60% 0%,#1b1c1f 0%,#0f0f10 60%,#0b0c0e 100%);color:var(--text);font-family:Poppins,Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;transition:background 600ms ease}
+    body{margin:0;color:var(--text);font-family:Manrope,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;transition:background 600ms ease;
+      background:radial-gradient(1200px 700px at 60% 0%,#1b1c1f 0%,#0f0f10 60%,#0b0c0e 100%);} 
 
-    /* Themes (background reacts to weather) */
+    /* Weather-reactive themes */
     body.theme-sunny{background:radial-gradient(900px 600px at 70% 0%,#2b2a22 0%,#141310 55%,#0d0c0b 100%), radial-gradient(420px 280px at 62% 20%, rgba(255,199,83,.22), rgba(255,199,83,0));}
     body.theme-cloudy{background:radial-gradient(1000px 680px at 60% 0%,#1f2226 0%,#101215 60%,#0b0c0e 100%);} 
     body.theme-rain{background:radial-gradient(1100px 700px at 60% 0%,#18202a 0%,#0c1219 60%,#070a0f 100%);} 
     body.theme-thunder{background:radial-gradient(1100px 700px at 60% 0%,#141620 0%,#0a0b12 60%,#06070c 100%);} 
     body.theme-snow{background:radial-gradient(1100px 700px at 60% 0%,#1b222a 0%,#0e1419 60%,#0a0e12 100%);} 
 
-    /* Frame */
-    .frame{max-width:1100px;margin:20px auto;padding:14px;border-radius:28px;background:linear-gradient(180deg,#17181b, #0d0d0f);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), 0 50px 120px rgba(0,0,0,.5);} 
-    .inner{position:relative;border-radius:24px;min-height:620px;background:linear-gradient(140deg,#141518 0%,#0f1012 55%,#0d0e10 100%);padding:38px 36px;overflow:hidden}
-    .rounded-edge{position:absolute;inset:0;border-radius:24px;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+    /* Fullscreen layout */
+    .wrap{position:relative;min-height:100vh;padding:28px 36px 180px}
 
-    /* Language switch */
-    .langswitch{position:absolute;top:22px;right:28px;display:flex;gap:6px;align-items:center;color:#d7d8dc;font:500 14px Inter;opacity:.95;z-index:6}
-    .langswitch button{background:transparent;border:0;color:inherit;padding:4px 8px;border-radius:8px;cursor:pointer}
-    .langswitch button.active{background:var(--glass);border:1px solid rgba(255,255,255,.08)}
+    /* Hamburger (now pure white icon) */
+    .hamburger{position:fixed;top:18px;right:18px;z-index:30}
+    .hamburger button{width:40px;height:40px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff}
+    .hamburger svg{opacity:1;stroke:#fff}
+
+    .drawer{position:fixed;top:14px;right:14px;z-index:29;transform:translateY(-10px) scale(.98);opacity:0;pointer-events:none;transition:all .22s ease}
+    .drawer.open{transform:none;opacity:1;pointer-events:auto}
+    .panel{width:300px;background:rgba(20,21,26,.96);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 14px 10px;box-shadow:0 18px 80px rgba(0,0,0,.45)}
+    .panel h5{margin:8px 6px 6px;font:800 12px Manrope;color:#cbd0d6;letter-spacing:.2px;text-transform:uppercase}
+    .row{display:flex;gap:8px;align-items:center;padding:8px 6px;border-radius:10px}
+    .row:hover{background:rgba(255,255,255,.06)}
+    .langbtn{display:flex;gap:8px}
+    .langbtn button{flex:1;background:#101115;border:1px solid rgba(255,255,255,.08);color:#e9eaec;padding:10px 10px;border-radius:10px;font:700 13px Manrope;cursor:pointer}
+    .langbtn button.active{background:var(--glass)}
+    .panel a{display:flex;gap:10px;align-items:center;color:#e7e9ed;text-decoration:none;font:700 14px Manrope;padding:10px 6px;border-radius:10px}
+    .panel a:hover{background:rgba(255,255,255,.06)}
+    .legal{opacity:.6;font:600 11px Manrope;margin:6px 6px 2px}
 
     /* Top bar */
-    .top{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:-4px}
-    .crumb{display:flex;align-items:center;gap:10px;font:500 14px Inter;color:#d7d8dc;opacity:.95}
+    .top{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:2px}
+    .crumb{display:flex;align-items:center;gap:10px;font:700 14px Manrope;color:#d7d8dc;opacity:.95}
     .crumb .dot{width:6px;height:6px;border-radius:50%;background:#9aa0a6}
     .loc{display:flex;align-items:center;gap:8px}
-    .loc b{font-weight:600}
-    .caret{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--glass);border:1px solid rgba(255,255,255,.06);cursor:pointer;}
+    .caret{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--glass);border:1px solid rgba(255,255,255,.06);cursor:pointer}
     .caret:hover{background:rgba(255,255,255,.09)}
-    .date{opacity:.75}
 
-    /* Left big temperature */
-    .hero{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;margin-top:18px}
-    .bigtemp{font-weight:300;font-size:120px;letter-spacing:-2px}
+    /* Main grid */
+    .hero{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;margin-top:12px}
+    .bigtemp{font-weight:300;font-size:128px;letter-spacing:-1.5px}
     .deg{font-size:.45em;opacity:.8;margin-left:6px}
-    .subtitle{font-size:30px;font-weight:400;margin-top:6px;opacity:.92}
+    .subtitle{font-size:32px;font-weight:400;margin-top:8px;opacity:.92}
 
-    /* Small metrics */
-    .metrics{display:flex;gap:34px;margin-top:28px}
-    .metric{display:flex;align-items:center;gap:10px;color:#d5d8dd}
+    /* Small metrics with labels */
+    .metrics{display:flex;gap:42px;margin-top:26px}
+    .metric{display:flex;align-items:center;gap:12px;color:#d5d8dd}
     .metric svg{opacity:.9}
-    .metric .val{font-weight:500}
-    .metric .unit{opacity:.7;margin-left:4px}
+    .mcontent{display:flex;flex-direction:column;line-height:1.05}
+    .val{font-weight:800;font-size:16px}
+    .unit{opacity:.72;font-size:14px}
+    .lbl{opacity:.65;font:700 12px Manrope;margin-top:2px}
 
-    /* Weather artwork */
-    .artwrap{position:relative;display:flex;align-items:center;justify-content:center;}
-    .cloud{filter:drop-shadow(0 20px 40px rgba(0,0,0,.4))}
-    .bolt{position:absolute;width:120px;left:50%;transform:translateX(-50%);top:120px;animation:blink 2.2s infinite}
-    @keyframes blink{0%,85%{opacity:.1} 90%{opacity:1} 100%{opacity:.1}}
+    /* Central 3D-like artwork */
+    .artwrap{position:relative;display:flex;align-items:center;justify-content:center;padding-right:380px}
+    .artwrap img.centerpic{width:clamp(520px,44vw,980px);height:auto;filter:drop-shadow(0 24px 60px rgba(0,0,0,.55))}
+    .cloud{filter:drop-shadow(0 24px 60px rgba(0,0,0,.55))}
+    .bolt{position:absolute;width:clamp(100px,9vw,170px);left:50%;transform:translateX(-50%);top:120px;animation:blink 2.2s infinite}
+    @keyframes blink{0%,85%{opacity:.08} 90%{opacity:1} 100%{opacity:.08}}
     .rain,.snow{position:absolute;inset:0;pointer-events:none;display:none}
     .drop,.flake{position:absolute;top:-20px;width:2px;height:10px;background:var(--rain);opacity:.85;border-radius:2px;animation:fall 1.8s linear infinite}
     .flake{width:4px;height:4px;background:#cfe1ff;border-radius:50%;opacity:.9;animation:fall 3s linear infinite}
     @keyframes fall{to{transform:translateY(420px)}}
 
-    /* Right weekly panel */
-    .weekly{position:absolute;right:28px;top:86px;width:235px;background:var(--glass);backdrop-filter:blur(8px);padding:14px 12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);z-index:5}
-    .weekly h4{margin:6px 10px 8px 14px;font:600 13px Inter;letter-spacing:.2px;color:#c7cad1;opacity:.9}
-    .day{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:10px 14px;border-radius:12px}
-    .day + .day{margin-top:2px}
+    /* Weekly panel */
+    .weekly{position:fixed;right:28px;top:86px;width:320px;background:var(--glass);backdrop-filter:blur(8px);padding:14px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.08);z-index:20}
+    .weekly h4{margin:8px 12px 10px 16px;font:800 13px Manrope;letter-spacing:.2px;color:#c7cad1;opacity:.9}
+    .day{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:12px 16px;border-radius:14px}
+    .day + .day{margin-top:4px}
     .day.active{background:rgba(255,255,255,.06)}
-    .d-name{font:500 14px Inter}
-    .d-meta{font:400 12px Inter;opacity:.75}
-    .d-temp{font:500 14px Inter}
+    .d-name{font:800 15px Manrope}
+    .d-meta{font:700 12px Manrope;opacity:.78;margin-top:2px}
+    .d-temp{font:800 18px Manrope}
 
-    /* Timeline */
-    .timeline{position:absolute;left:28px;right:28px;bottom:34px}
-    .scroll{overflow-x:auto;overflow-y:hidden; -ms-overflow-style:none; scrollbar-width:none;}
+    /* Timeline: full-width with side padding */
+    .timeline{position:fixed;left:28px;right:28px;bottom:36px;z-index:10}
+    .scroll{overflow-x:auto;overflow-y:hidden;-ms-overflow-style:none;scrollbar-width:none}
     .scroll::-webkit-scrollbar{display:none}
-    .spark{height:140px;border-bottom:1px dashed rgba(255,255,255,.08);position:relative}
+    .spark{height:160px;position:relative}
     .spark svg{display:block}
-    .tpoints{display:flex;justify-content:flex-start;align-items:flex-end;gap:0;margin-top:8px}
-    .tpt{display:flex;flex-direction:column;align-items:center;gap:6px;font:500 13px Inter;color:#d6d7db;width:var(--hour-width)}
+    .tpoints{display:flex;justify-content:flex-start;align-items:flex-end;margin-top:4px}
+    .tpt{display:flex;flex-direction:column;align-items:center;gap:6px;font:800 14px Manrope;color:#d6d7db;width:var(--hour-width)}
     .tpt .dot{width:8px;height:8px;border-radius:50%;background:#ffcc71;box-shadow:0 0 0 4px rgba(255,204,113,.12);visibility:hidden}
     .tpt.current .dot{visibility:visible}
-    .tpt .time{opacity:.6;font-weight:400}
+    .tpt .time{opacity:.62;font:700 12px Manrope}
+    .tick{width:2px;height:8px;background:rgba(255,255,255,.18);border-radius:2px;margin-top:-6px}
 
-    /* Timeline nav buttons */
-    .tlnav{position:absolute;right:6px;bottom:76px;display:flex;flex-direction:column;gap:8px;z-index:4}
-    .navbtn{width:34px;height:34px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .navbtn:hover{background:rgba(255,255,255,.1)}
+    .tlnav{position:fixed;right:28px;bottom:64px;display:flex;flex-direction:column;gap:8px;z-index:21}
+    .navbtn{width:34px;height:34px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .navbtn:hover{background:rgba(255,255,255,.12)}
 
     /* Location search modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.56);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.56);display:none;align-items:center;justify-content:center;padding:20px;z-index:40}
     .modal.on{display:flex}
-    .sheet{width:min(720px,94vw);background:#15161a;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 30px 100px rgba(0,0,0,.5);padding:18px}
+    .sheet{position:relative;width:min(720px,94vw);background:#15161a;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 30px 100px rgba(0,0,0,.5);padding:56px 18px 16px}
     .searchbar{display:flex;gap:10px}
-    .searchbar input{flex:1;background:#101115;border:1px solid rgba(255,255,255,.08);color:#e9eaec;padding:14px 14px;border-radius:12px;font:500 15px Inter}
+    .searchbar input{flex:1;background:#101115;border:1px solid rgba(255,255,255,.08);color:#e9eaec;padding:14px 14px;border-radius:12px;font:700 15px Manrope}
     .list{margin-top:12px;max-height:46vh;overflow:auto}
     .option{padding:12px 14px;border-radius:10px;border:1px solid transparent;cursor:pointer}
     .option:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.08)}
+    .modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .modal-close:hover{background:rgba(255,255,255,.1)}
 
-    /* Misc */
-    .hide{display:none}
     .muted{color:var(--muted)}
 
-    @media (max-width: 980px){.hero{grid-template-columns:1fr}.weekly{position:static;width:100%;margin-top:18px}.artwrap{padding-right:0}}
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr}
+      .artwrap{padding-right:0}
+      .weekly{position:static;margin:14px 0 0 0;z-index:unset}
+      .timeline,.tlnav{left:14px;right:14px}
+      .tlnav{right:14px}
+    }
   </style>
 </head>
 <body class="theme-cloudy">
-  <div class="frame">
-    <div class="inner">
-      <div class="rounded-edge"></div>
+  <div class="wrap">
 
-      <!-- Language switch -->
-      <div class="langswitch" id="langswitch">
-        <button data-lang="de" class="active">DE</button>|
-        <button data-lang="en">EN</button>
-      </div>
-
-      <!-- Top crumb bar -->
-      <div class="top" id="topBar">
-        <div class="crumb">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <div class="loc" id="locLabel">Dresden, Sachsen, Deutschland</div>
-          <div class="caret" id="btnOpenSearch" title="Ort wählen">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-          <span class="dot"></span>
-          <div class="date" id="dateLabel">Mittwoch, 13. August</div>
-        </div>
-      </div>
-
-      <!-- Main hero -->
-      <div class="hero">
-        <div>
-          <div class="bigtemp" id="bigTemp">--<span class="deg">°C</span></div>
-          <div class="subtitle" id="subtitle">—</div>
-          <div class="metrics">
-            <div class="metric" id="windMetric" title="Wind">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7a3 3 0 10-2.7-4M3 8h13m-9 4h12a3 3 0 11-3 3"/></svg>
-              <span class="val" id="windVal">--</span><span class="unit">km/h</span>
-            </div>
-            <div class="metric" id="humMetric" title="Luftfeuchte">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s7 7 7 12a7 7 0 11-14 0c0-5 7-12 7-12z"/></svg>
-              <span class="val" id="humVal">--</span><span class="unit">%</span>
-            </div>
-          </div>
-        </div>
-        <div class="artwrap" aria-hidden="true">
-          <!-- Cloud + sun artwork -->
-          <svg class="cloud" width="420" height="240" viewBox="0 0 540 300" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <radialGradient id="sun" cx="70%" cy="50%" r="40%">
-                <stop offset="0%" stop-color="#ffd36b"/>
-                <stop offset="100%" stop-color="#ffad00"/>
-              </radialGradient>
-              <filter id="blur"><feGaussianBlur stdDeviation="30" /></filter>
-            </defs>
-            <ellipse cx="340" cy="140" rx="110" ry="70" fill="url(#sun)" opacity=".8" filter="url(#blur)"/>
-            <g fill="#fff">
-              <ellipse cx="160" cy="130" rx="120" ry="70" fill="#e9edf2"/>
-              <ellipse cx="260" cy="120" rx="150" ry="85" fill="#f1f4f7"/>
-              <ellipse cx="340" cy="135" rx="110" ry="70" fill="#eef2f6"/>
-              <ellipse cx="410" cy="150" rx="95" ry="60" fill="#e8edf3"/>
-            </g>
-          </svg>
-          <!-- Lightning bolt -->
-          <svg class="bolt" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" style="display:none">
-            <defs>
-              <linearGradient id="lg" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#ffd36b"/>
-                <stop offset="100%" stop-color="#ffae00"/>
-              </linearGradient>
-            </defs>
-            <polygon points="50,0 0,120 42,120 12,220 120,86 74,86 108,0" fill="url(#lg)" stroke="#ffcf54" stroke-width="3"/>
-          </svg>
-          <!-- Rain and Snow layers -->
-          <div class="rain" id="rainLayer"></div>
-          <div class="snow" id="snowLayer"></div>
-        </div>
-      </div>
-
-      <!-- Weekly panel -->
-      <div class="weekly" id="weeklyPanel">
-        <h4 id="nextDaysTitle">Nächste Tage</h4>
-        <div id="days"></div>
-      </div>
-
-      <!-- Timeline -->
-      <div class="timeline">
-        <div class="scroll" id="tlScroll">
-          <div class="spark" id="sparkWrap">
-            <svg id="spark" preserveAspectRatio="none"></svg>
-          </div>
-          <div class="tpoints" id="tpoints"></div>
-        </div>
-        <div class="tlnav">
-          <div class="navbtn" id="btnLeft" title="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </div>
-          <div class="navbtn" id="btnRight" title="Weiter">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
-      </div>
-
+    <!-- Hamburger menu -->
+    <div class="hamburger">
+      <button id="btnMenu" aria-label="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
     </div>
+    <div class="drawer" id="drawer">
+      <div class="panel">
+        <h5>Sprache / Language</h5>
+        <div class="row langbtn">
+          <button id="langDE" data-lang="de">DE</button>
+          <button id="langEN" data-lang="en">EN</button>
+        </div>
+        <h5>Links</h5>
+        <a href="https://www.buymeacoffee.com/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0v9a3 3 0 003 3h6a3 3 0 003-3V8z"/><path d="M8 8h8"/></svg> BuyMeACoffee</a>
+        <a href="https://github.com/" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 00-3.8 23.4c.6.1.8-.2.8-.5v-1.8c-3.4.8-4.2-1.6-4.2-1.6-.6-1.4-1.5-1.8-1.5-1.8-1.2-.8.1-.8.1-.8 1.3.1 2 . 1.7 2 . 1.3 1.9 2.4 1.3 3 . 1 .1-.9.5-1.3.8-1.6-2.7-.3-5.6-1.4-5.6-6.1 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.4 1.2a11.7 11.7 0 016.2 0C16.5 4 17.5 4.3 17.5 4.3c.6 1.7.2 2.9.1 3.2.8.9 1.2 2 1.2 3.3 0 4.7-2.9 5.8-5.6 6.1.5.4.9 1.1.9 2.3v3.4c0 .3.2.6.8.5A12 12 0 0012 .5z"/></svg> GitHub</a>
+        <div class="legal">Impressum · Datenschutzerklärung</div>
+      </div>
+    </div>
+
+    <!-- Top crumb bar -->
+    <div class="top" id="topBar">
+      <div class="crumb">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12S3 16 3 10a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div class="loc" id="locLabel">Dresden, Sachsen, Deutschland</div>
+        <div class="caret" id="btnOpenSearch" title="Ort wählen">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <span class="dot"></span>
+        <div class="date" id="dateLabel">Mittwoch, 13. August</div>
+      </div>
+    </div>
+
+    <!-- Main hero -->
+    <div class="hero">
+      <div>
+        <div class="bigtemp" id="bigTemp">--<span class="deg">°C</span></div>
+        <div class="subtitle" id="subtitle">—</div>
+        <div class="metrics">
+          <div class="metric" id="windMetric" title="Wind">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7a3 3 0 10-2.7-4M3 8h13m-9 4h12a3 3 0 11-3 3"/></svg>
+            <div class="mcontent">
+              <div><span class="val" id="windVal">--</span> <span class="unit">km/h</span></div>
+              <div class="lbl" id="windLbl">Wind</div>
+            </div>
+          </div>
+          <div class="metric" id="humMetric" title="Luftfeuchte">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s7 7 7 12a7 7 0 11-14 0c0-5 7-12 7-12z"/></svg>
+            <div class="mcontent">
+              <div><span class="val" id="humVal">--</span> <span class="unit">%</span></div>
+              <div class="lbl" id="humLbl">Luftfeuchte</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="artwrap" aria-hidden="true">
+        <!-- Cloud + sun artwork -->
+        <img id="centerArt" class="centerpic" src="https://chatgpt.com/backend-api/public_content/enc/eyJpZCI6Im1fNjg5YzViNzNkZTgwODE5MWE1ZGFhOGVmMTNmZTA4NzU6ZmlsZV8wMDAwMDAwMDBlYWM2MWY0YjZlYTk4YWM2NmQxN2VkYSIsInRzIjoiNDg3NTIxIiwicCI6InB5aSIsInNpZyI6ImI1NjZiMDNlZWI5YTFiZDlhY2I1OGQzOTllMjhhZDJhNTI1ZTEyOGE2ZjRhMjY4NDE4YjllNWJlNjk5YzM4MDEiLCJ2IjoiMCIsImdpem1vX2lkIjpudWxsfQ==" alt="Wetterbild"/>
+        <!-- Lightning bolt -->
+        <svg class="bolt" viewBox="0 0 120 220" xmlns="http://www.w3.org/2000/svg" style="display:none">
+          <defs>
+            <linearGradient id="lg" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#ffd36b"/>
+              <stop offset="100%" stop-color="#ffae00"/>
+            </linearGradient>
+          </defs>
+          <polygon points="50,0 0,120 42,120 12,220 120,86 74,86 108,0" fill="url(#lg)" stroke="#ffcf54" stroke-width="3"/>
+        </svg>
+        <!-- Rain and Snow layers -->
+        <div class="rain" id="rainLayer"></div>
+        <div class="snow" id="snowLayer"></div>
+      </div>
+    </div>
+
+    <!-- Weekly panel -->
+    <div class="weekly" id="weeklyPanel">
+      <h4 id="nextDaysTitle">Nächste Tage</h4>
+      <div id="days"></div>
+    </div>
+
+    <!-- Timeline (mock-accurate) -->
+    <div class="timeline">
+      <div class="scroll" id="tlScroll">
+        <div class="spark" id="sparkWrap">
+          <svg id="spark" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="tpoints" id="tpoints"></div>
+      </div>
+      <div class="tlnav">
+        <div class="navbtn" id="btnLeft" title="Zurück">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </div>
+        <div class="navbtn" id="btnRight" title="Weiter">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Location search modal -->
   <div class="modal" id="modal">
-    <div class="sheet">
+    <div class="sheet" id="modalSheet">
+      <div class="modal-close" id="btnCloseSearch" title="Schließen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
       <div class="searchbar">
         <input id="searchInput" placeholder="Ort suchen… (z. B. Berlin, München)" autocomplete="off" />
-        <div class="caret" id="btnCloseSearch" title="Schließen">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </div>
       </div>
       <div class="list" id="results"></div>
-      <div class="muted" id="sourceNote" style="margin-top:10px;font:400 12px Inter">Geocoding via Photon (OSM). Wetterdaten via Bright Sky (DWD).</div>
+      <div class="muted" id="sourceNote" style="margin-top:10px;font:600 12px Manrope">Geocoding via Photon (OSM). Wetterdaten via Bright Sky (DWD).</div>
     </div>
   </div>
 
@@ -243,12 +264,12 @@
          search:'Ort suchen… (z. B. Berlin, München)', close:'Schließen',
          note:'Geocoding via Photon (OSM). Wetterdaten via Bright Sky (DWD).',
          weekdayFmt:'de-DE', dateOpts:{weekday:'long', month:'long', day:'numeric'}, timeOpts:{hour:'2-digit', minute:'2-digit'},
-         cond:{ thunder:'Gewitter mit Regen', rain:'Regen', snow:'Schnee', sunny:'Sonnig', cloudy:'Bewölkt' } },
+         cond:{ thunder:'Gewitter', thunder_rain:'Gewitter mit Regen', rain:'Regen', snow:'Schnee', sleet:'Schneeregen', sunny:'Sonnig', sunclouds:'Sonne mit Wolken', cloudy:'Bewölkt' } },
     en:{ nextDays:'Next days', wind:'Wind', humidity:'Humidity',
          search:'Search location… (e.g. Berlin, Munich)', close:'Close',
          note:'Geocoding via Photon (OSM). Weather via Bright Sky (DWD).',
          weekdayFmt:'en-US', dateOpts:{weekday:'long', month:'long', day:'numeric'}, timeOpts:{hour:'2-digit', minute:'2-digit'},
-         cond:{ thunder:'Rain with thunder', rain:'Rain', snow:'Snow', sunny:'Sunny', cloudy:'Cloudy' } },
+         cond:{ thunder:'Thunder', thunder_rain:'Thunder with rain', rain:'Rain', snow:'Snow', sleet:'Sleet', sunny:'Sunny', sunclouds:'Sunny with clouds', cloudy:'Cloudy' } },
   };
 
   // ========= Cookies =========
@@ -262,44 +283,60 @@
   const subtitle = $('#subtitle');
   const windVal = $('#windVal');
   const humVal = $('#humVal');
+  const windLbl = $('#windLbl');
+  const humLbl = $('#humLbl');
   const daysEl = $('#days');
   const sparkSvg = $('#spark');
   const tpoints = $('#tpoints');
   const sparkWrap = $('#sparkWrap');
   const tlScroll = $('#tlScroll');
   const modal = $('#modal');
+  const modalSheet = $('#modalSheet');
   const searchInput = $('#searchInput');
   const results = $('#results');
   const rainLayer = $('#rainLayer');
   const snowLayer = $('#snowLayer');
   const boltEl = document.querySelector('.bolt');
   const nextDaysTitle = $('#nextDaysTitle');
-  const windMetric = $('#windMetric');
-  const humMetric = $('#humMetric');
   const sourceNote = $('#sourceNote');
+  const cloudGroup = document.getElementById('cloudGroup');
+  const sunGlow = document.getElementById('sunGlow');
+  const drawer = document.getElementById('drawer');
+  const btnMenu = document.getElementById('btnMenu');
+  const btnDE = document.getElementById('langDE');
+  const btnEN = document.getElementById('langEN');
 
   const DEFAULT = { lat:51.0504, lon:13.7373, label:'Dresden, Sachsen, Deutschland' };
 
   let LANG = getCookie('lang') || 'de';
   document.documentElement.lang = LANG === 'de' ? 'de' : 'en';
 
+  function setActiveLangButtons(){ btnDE.classList.toggle('active', LANG==='de'); btnEN.classList.toggle('active', LANG==='en'); }
+
   function applyLang(){
     const t = I18N[LANG];
     nextDaysTitle.textContent = t.nextDays;
-    windMetric.title = t.wind; humMetric.title = t.humidity;
-    sourceNote.textContent = t.note; searchInput.placeholder = t.search; $('#btnCloseSearch').title = t.close;
+    windLbl.textContent = t.wind; humLbl.textContent = t.humidity;
+    sourceNote.textContent = t.note; searchInput.placeholder = t.search; document.getElementById('btnCloseSearch').title = t.close;
     $('#dateLabel').textContent = new Date().toLocaleDateString(t.weekdayFmt, t.dateOpts);
-    document.querySelectorAll('.langswitch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===LANG));
+    document.documentElement.lang = LANG==='de'?'de':'en';
+    setActiveLangButtons();
   }
 
+  // derive condition
   function normalizeCondition(w){
     const c = (w.condition||'').toLowerCase();
-    if(c.includes('thunder')) return 'thunder';
+    const t = Number(w.temperature);
+    const p = Number(w.precipitation||0);
+    const cc = w.cloud_cover != null ? Number(w.cloud_cover) : null;
+    if(c.includes('thunder')) return p>0? 'thunder_rain':'thunder';
+    if(p>0){ if(t<=0.5) return 'snow'; if(t>0.5 && t<2.5) return 'sleet'; return 'rain'; }
+    if(cc!=null){ if(cc<20) return 'sunny'; if(cc<60) return 'sunclouds'; return 'cloudy'; }
+    if(c.includes('partly')) return 'sunclouds';
+    if(c.includes('clear')||c==='dry'||c.includes('sun')) return 'sunny';
+    if(c.includes('cloud')||c.includes('overcast')) return 'cloudy';
     if(c.includes('snow')) return 'snow';
     if(c.includes('rain')) return 'rain';
-    if(c.includes('drizzle')) return 'rain';
-    if(c.includes('cloud')||c.includes('overcast')) return 'cloudy';
-    if(c.includes('clear')||c==='dry'||c.includes('sun')) return 'sunny';
     return 'cloudy';
   }
 
@@ -309,149 +346,123 @@
   function setLocationLabel(obj){ const parts=[obj.name, obj.state||obj.county, obj.country]; topLoc.textContent = parts.filter(Boolean).join(', '); }
 
   async function reverseGeocode(lat, lon){
-    try{ const r = await fetch(PHOTON.reverse(lat, lon)); const j = await r.json(); if(j && j.features && j.features[0]){ const p = j.features[0].properties; setLocationLabel({name:p.city||p.name||p.town||p.village||p.county,state:p.state,country:p.country}); } else { topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; } }
-    catch{ topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; }
+    try{ const r = await fetch(PHOTON.reverse(lat, lon)); const j = await r.json(); if(j && j.features && j.features[0]){ const p = j.features[0].properties; const country = p.country || ''; setLocationLabel({name:p.city||p.name||p.town||p.village||p.county,state:p.state,country});
+      if(!getCookie('lang')){ LANG = /deutschland|germany|DE/i.test(country)? 'de':'en'; setCookie('lang', LANG); applyLang(); }
+    } else { topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; } }
+    catch{ topLoc.textContent = `${lat.toFixed(3)}, ${lon.toFixed(3)}`; if(!getCookie('lang')){ LANG = (navigator.language||'').startsWith('de')?'de':'en'; setCookie('lang', LANG); applyLang(); } }
   }
 
   function groupByDay(weather){ const map=new Map(); for(const w of weather){ const d=new Date(w.timestamp).toISOString().slice(0,10); if(!map.has(d)) map.set(d,[]); map.get(d).push(w);} return Array.from(map.entries()).map(([date,arr])=>({date,arr})); }
 
-  // ======== Sparkline (48h, scrollable) ========
+  // ======== New sparkline from scratch (exactly between labels) ========
   let lastHours = []; let lastGroups=null; let currentCond='cloudy';
+  function catmullRomPath(pts){
+    if(pts.length<2) return '';
+    const a=0.5; let d=`M ${pts[0][0]} ${pts[0][1]}`;
+    for(let i=0;i<pts.length-1;i++){
+      const p0=pts[i-1]||pts[i]; const p1=pts[i]; const p2=pts[i+1]; const p3=pts[i+2]||p2;
+      const cp1x=p1[0]+(p2[0]-p0[0])*a/6; const cp1y=p1[1]+(p2[1]-p0[1])*a/6;
+      const cp2x=p2[0]-(p3[0]-p1[0])*a/6; const cp2y=p2[1]-(p3[1]-p1[1])*a/6;
+      d+=` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  }
   function drawSparkline(hours){
     lastHours = hours.slice();
-    const h = 140;                       // height of spark area
-    const STEP = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width')) || 120;
-    const w = (hours.length-1) * STEP;   // width based on hours
+    const h = 160; const STEP = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width')) || 132; const w = (hours.length-1) * STEP;
+    sparkSvg.setAttribute('viewBox', `0 0 ${w} ${h}`); sparkSvg.style.width = w + 'px'; sparkWrap.style.width = w + 'px'; tpoints.style.width = w + 'px';
 
-    sparkSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    sparkSvg.style.width = w + 'px';
-    sparkWrap.style.width = w + 'px';
-    tpoints.style.width = w + 'px';
+    const temps = hours.map(hh=>hh.temperature); let min = Math.min(...temps), max = Math.max(...temps); const range = Math.max(4, max-min);
+    const paddingTop = 36, paddingBottom = 52; const mid = (h - paddingTop - paddingBottom)/2 + paddingTop; const amp = Math.min(28, (h - paddingTop - paddingBottom) * 0.45);
+    const y = (t)=> mid - ((t - (min+max)/2) / range) * amp;
 
-    const temps = hours.map(hh=>hh.temperature);
-    let min = Math.min(...temps), max = Math.max(...temps);
-    if(max - min < 3){ const mid=(max+min)/2; min = mid-2; max = mid+2; }
-    const paddingTop = 18, paddingBottom = 26;
-    const y = (t)=> paddingTop + (h - paddingTop - paddingBottom) * (1 - (t - min)/(max - min));
+    const pts = hours.map((hh,i)=>[i*STEP, y(hh.temperature)]); const d = catmullRomPath(pts);
+    sparkSvg.innerHTML = `<defs><linearGradient id='lineGrad' x1='0' y1='0' x2='1' y2='0'><stop offset='0%' stop-color='rgba(255,255,255,.22)'/><stop offset='100%' stop-color='rgba(255,255,255,.36)'/></linearGradient></defs><path d="${d}" fill="none" stroke="url(#lineGrad)" stroke-width="2" stroke-linecap="round"/>`;
 
-    let d = '';
-    hours.forEach((hh,i)=>{ const px=i*STEP, py=y(hh.temperature); d += (i? ' L':'M')+px+','+py; });
-    sparkSvg.innerHTML = `<path d="${d}" fill="none" stroke="var(--line)" stroke-width="4" stroke-linecap="round"/>`;
-
-    // points list with only current dot visible (second item)
-    tpoints.innerHTML='';
-    const fmt = I18N[LANG].timeOpts; const loc = I18N[LANG].weekdayFmt;
-    hours.forEach((hh,i)=>{
-      const wrap=document.createElement('div'); wrap.className='tpt'+(i===1?' current':'');
-      const dot=document.createElement('div'); dot.className='dot';
-      const temp=document.createElement('div'); temp.textContent=Math.round(hh.temperature)+'°';
-      const tm=document.createElement('div'); tm.className='time'; tm.textContent=new Date(hh.timestamp).toLocaleTimeString(loc,fmt);
-      wrap.appendChild(temp); wrap.appendChild(dot); wrap.appendChild(tm); tpoints.appendChild(wrap);
-    });
+    tpoints.innerHTML=''; const fmt = I18N[LANG].timeOpts; const loc = I18N[LANG].weekdayFmt;
+    hours.forEach((hh,i)=>{ const wrap=document.createElement('div'); wrap.className='tpt'+(i===1?' current':''); const dot=document.createElement('div'); dot.className='dot'; const temp=document.createElement('div'); temp.textContent=Math.round(hh.temperature)+'°'; const tm=document.createElement('div'); tm.className='time'; tm.textContent=new Date(hh.timestamp).toLocaleTimeString(loc,fmt); wrap.appendChild(temp); const tick=document.createElement('div'); tick.className='tick'; wrap.appendChild(tick); wrap.appendChild(dot); wrap.appendChild(tm); tpoints.appendChild(wrap); });
   }
   window.addEventListener('resize', ()=>{ if(lastHours.length) drawSparkline(lastHours); });
 
   function renderDays(groups){
-    lastGroups = groups;
-    daysEl.innerHTML='';
-    const weekday = (s)=> new Date(s).toLocaleDateString(I18N[LANG].weekdayFmt,{weekday:'long'});
-    groups.slice(0,6).forEach((g,idx)=>{
-      const cond = (()=>{ const score={thunder:0,rain:0,snow:0,sunny:0,cloudy:0}; g.arr.forEach(x=>{ score[normalizeCondition(x)]++ }); return Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0]; })();
-      const maxT = Math.round(Math.max(...g.arr.map(x=>x.temperature)));
-      const div = document.createElement('div'); div.className='day'+(idx===0?' active':'');
-      div.innerHTML = `
-        <div style="width:22px;height:22px;opacity:.95">${iconFor(cond)}</div>
-        <div>
-          <div class="d-name">${weekday(g.date)}</div>
-          <div class="d-meta">${titleFrom(cond)}</div>
-        </div>
-        <div class="d-temp">${maxT}°</div>`;
-      daysEl.appendChild(div);
-    });
+    lastGroups = groups; daysEl.innerHTML=''; const weekday = (s)=> new Date(s).toLocaleDateString(I18N[LANG].weekdayFmt,{weekday:'long'});
+    groups.slice(0,6).forEach((g,idx)=>{ const cond = (()=>{ const score={thunder:0,thunder_rain:0,rain:0,snow:0,sleet:0,sunny:0,sunclouds:0,cloudy:0}; g.arr.forEach(x=>{ score[normalizeCondition(x)]++ }); return Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0]; })(); const maxT = Math.round(Math.max(...g.arr.map(x=>x.temperature))); const div = document.createElement('div'); div.className='day'+(idx===0?' active':''); div.innerHTML = `<div style="width:22px;height:22px;opacity:.95">${iconFor(cond)}</div><div><div class="d-name">${weekday(g.date)}</div><div class="d-meta">${titleFrom(cond)}</div></div><div class="d-temp">${maxT}°</div>`; daysEl.appendChild(div); });
   }
 
-  // === Refined small icons ===
-  function iconFor(cond){
-    switch(cond){
-      case 'thunder': return smallCloudThunder();
-      case 'rain': return smallCloudRain();
-      case 'snow': return smallCloudSnow();
-      case 'sunny': return smallSun();
-      default: return smallCloud();
-    }
-  }
-  function smallSun(){
-    return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gs" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd36b"/><stop offset="100%" stop-color="#ffad00"/></radialGradient></defs><circle cx="12" cy="12" r="5.2" fill="url(#gs)"/><g stroke="#ffd36b" stroke-width="1.7" stroke-linecap="round"><path d="M12 1.3v3.2"/><path d="M12 19.5v3.2"/><path d="M1.3 12h3.2"/><path d="M19.5 12h3.2"/><path d="M4.2 4.2l2.4 2.4"/><path d="M17.4 17.4l2.4 2.4"/><path d="M19.8 4.2L17.4 6.6"/><path d="M6.6 17.4L4.2 19.8"/></g></svg>`;
-  }
-  function smallCloud(fill='#e9edf2'){
-    return `<svg viewBox="0 0 28 20" xmlns="http://www.w3.org/2000/svg"><path d="M8 17h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 17z" fill="${fill}"/></svg>`;
-  }
-  function smallCloudRain(){
-    return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#e9edf2"/><g fill="#79b7ff"><circle cx="9" cy="20" r="1.6"/><circle cx="14" cy="22" r="1.6"/><circle cx="19" cy="20" r="1.6"/></g></svg>`;
-  }
-  function smallCloudSnow(){
-    return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#eef5ff"/><g stroke="#c7d3ea" stroke-width="1.4" stroke-linecap="round"><path d="M9 20h0"/><path d="M14 22h0"/><path d="M19 20h0"/></g></svg>`;
-  }
-  function smallCloudThunder(){
-    return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#e9edf2"/><polygon points="13,14 10,20 13,20 11,24 18,16 15,16 16.8,12" fill="#ffb000"/></svg>`;
-  }
+  // === Small icons for all conditions ===
+  function iconFor(cond){ switch(cond){ case 'thunder_rain': return smallThunderRain(); case 'thunder': return smallThunder(); case 'sleet': return smallSleet(); case 'rain': return smallRain(); case 'snow': return smallSnow(); case 'sunny': return smallSun(); case 'sunclouds': return smallSunCloud(); default: return smallCloud(); } }
+  function smallSun(){ return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gs" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffd36b"/><stop offset="100%" stop-color="#ffad00"/></radialGradient></defs><circle cx="12" cy="12" r="5.2" fill="url(#gs)"/><g stroke="#ffd36b" stroke-width="1.7" stroke-linecap="round"><path d="M12 1.3v3.2"/><path d="M12 19.5v3.2"/><path d="M1.3 12h3.2"/><path d="M19.5 12h3.2"/><path d="M4.2 4.2l2.4 2.4"/><path d="M17.4 17.4l2.4 2.4"/><path d="M19.8 4.2L17.4 6.6"/><path d="M6.6 17.4L4.2 19.8"/></g></svg>` }
+  function smallCloud(fill='#e9edf2'){ return `<svg viewBox="0 0 28 20" xmlns="http://www.w3.org/2000/svg"><path d="M8 17h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 17z" fill="${fill}"/></svg>` }
+  function smallSunCloud(){ return `<svg viewBox="0 0 28 22" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="9" r="4" fill="#ffd36b"/><path d="M9 3v2M9 13v2M3 9h2M13 9h2M5 5l1.4 1.4M12.6 12.6 14 14M14 11.5a5.5 5.5 0 00-5.5 5.5h9a4 4 0 100-8 5.5 5.5 0 00-3.5 1.5z" stroke="#ffd36b" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M14 18h7a4 4 0 100-8 6 6 0 00-6 6" fill="#e9edf2"/></svg>` }
+  function smallRain(){ return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#e9edf2"/><g fill="#79b7ff"><circle cx="9" cy="20" r="1.6"/><circle cx="14" cy="22" r="1.6"/><circle cx="19" cy="20" r="1.6"/></g></svg>` }
+  function smallSnow(){ return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#eef5ff"/><g stroke="#c7d3ea" stroke-width="1.4" stroke-linecap="round"><path d="M9 20h0"/><path d="M14 22h0"/><path d="M19 20h0"/></g></svg>` }
+  function smallSleet(){ return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#eaf1fb"/><g><circle cx="10" cy="20" r="1.6" fill="#79b7ff"/><path d="M16 22h0" stroke="#c7d3ea" stroke-width="1.6" stroke-linecap="round"/></g></svg>` }
+  function smallThunder(){ return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#e9edf2"/><polygon points="13,14 10,20 13,20 11,24 18,16 15,16 16.8,12" fill="#ffb000"/></svg>` }
+  function smallThunderRain(){ return `<svg viewBox="0 0 28 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 14h13a5.5 5.5 0 100-11 7 7 0 10-14 2A4.5 4.5 0 008 14z" fill="#e9edf2"/><polygon points="13,14 10,20 13,20 11,24 18,16 15,16 16.8,12" fill="#ffb000"/><g fill="#79b7ff"><circle cx="20" cy="21" r="1.5"/></g></svg>` }
 
   // ======== Theme + Effects ========
   function setTheme(cond){
     currentCond = cond;
     document.body.classList.remove('theme-sunny','theme-cloudy','theme-rain','theme-thunder','theme-snow');
-    const theme = (cond==='thunder')?'theme-thunder':(cond==='rain')?'theme-rain':(cond==='snow')?'theme-snow':(cond==='sunny')?'theme-sunny':'theme-cloudy';
+    const theme = (cond==='thunder'||cond==='thunder_rain')?'theme-thunder':(cond==='rain'||cond==='sleet')?'theme-rain':(cond==='snow')?'theme-snow':(cond==='sunny')?'theme-sunny':'theme-cloudy';
     document.body.classList.add(theme);
-    boltEl.style.display = cond==='thunder' ? 'block' : 'none';
-    rainLayer.style.display = (cond==='rain'||cond==='thunder') ? 'block':'none';
-    snowLayer.style.display = (cond==='snow') ? 'block':'none';
-    if(rainLayer.style.display==='block' && !rainLayer.childElementCount){ for(let i=0;i<60;i++){ const d=document.createElement('div'); d.className='drop'; d.style.left=Math.random()*90+5+'%'; d.style.animationDelay=(Math.random()*1.8)+'s'; d.style.opacity=(0.5+Math.random()*0.5).toFixed(2); rainLayer.appendChild(d);} }
-    if(snowLayer.style.display==='block' && !snowLayer.childElementCount){ for(let i=0;i<45;i++){ const f=document.createElement('div'); f.className='flake'; f.style.left=Math.random()*90+5+'%'; f.style.animationDuration=(2.5+Math.random()*2)+'s'; f.style.opacity=(0.5+Math.random()*0.5).toFixed(2); snowLayer.appendChild(f);} }
+    boltEl.style.display = (cond==='thunder'||cond==='thunder_rain') ? 'block' : 'none';
+    rainLayer.style.display = (cond==='rain'||cond==='sleet'||cond==='thunder_rain') ? 'block':'none';
+    snowLayer.style.display = (cond==='snow'||cond==='sleet') ? 'block':'none';
+
+    // central art: clouds/sun opacity (only if SVG present)
+    if(cloudGroup && sunGlow){
+      if(cond==='sunny'){ cloudGroup.style.opacity = 0; sunGlow.style.opacity = 1; }
+      else if(cond==='sunclouds'){ cloudGroup.style.opacity = 1; sunGlow.style.opacity = .85; }
+      else { cloudGroup.style.opacity = 1; sunGlow.style.opacity = .35; }
+    }
+
+    if(rainLayer.style.display==='block' && !rainLayer.childElementCount){ for(let i=0;i<70;i++){ const d=document.createElement('div'); d.className='drop'; d.style.left=Math.random()*90+5+'%'; d.style.animationDelay=(Math.random()*1.8)+'s'; d.style.opacity=(0.5+Math.random()*0.5).toFixed(2); rainLayer.appendChild(d);} }
+    if(snowLayer.style.display==='block' && !snowLayer.childElementCount){ for(let i=0;i<50;i++){ const f=document.createElement('div'); f.className='flake'; f.style.left=Math.random()*90+5+'%'; f.style.animationDuration=(2.5+Math.random()*2)+'s'; f.style.opacity=(0.5+Math.random()*0.5).toFixed(2); snowLayer.appendChild(f);} }
   }
 
   // ========= Geolocation + saved place =========
   async function locate(){ if(!('geolocation' in navigator)) return null; return new Promise((resolve)=>{ navigator.geolocation.getCurrentPosition( pos=> resolve({lat:pos.coords.latitude, lon:pos.coords.longitude}), ()=> resolve(null), {enableHighAccuracy:true, timeout:7000}); }) }
 
   async function boot(){
-    applyLang();
+    applyLang(); setActiveLangButtons();
     const saved = getCookie('loc');
     if(saved){
       try{ const obj = JSON.parse(saved); setLocationLabel({name:obj.label}); await loadWeather(obj.lat, obj.lon); }catch{ await loadWeather(DEFAULT.lat, DEFAULT.lon); setLocationLabel({name:DEFAULT.label}); }
     }else{
-      // Show Dresden immediately as fallback
       setLocationLabel({name:DEFAULT.label}); await loadWeather(DEFAULT.lat, DEFAULT.lon);
-      // Try to improve via geolocation
-      const geo = await locate(); if(geo){ reverseGeocode(geo.lat, geo.lon); await loadWeather(geo.lat, geo.lon); }
+      const geo = await locate(); if(geo){ await reverseGeocode(geo.lat, geo.lon); await loadWeather(geo.lat, geo.lon); }
+      else if(!getCookie('lang')){ LANG = (navigator.language||'').startsWith('de')?'de':'en'; setCookie('lang', LANG); applyLang(); }
     }
   }
 
   // Search UI
   $('#btnOpenSearch').addEventListener('click',()=>{ modal.classList.add('on'); searchInput.focus(); });
-  $('#btnCloseSearch').addEventListener('click',()=>{ modal.classList.remove('on'); });
-  document.querySelectorAll('.langswitch button').forEach(b=> b.addEventListener('click',()=>{ LANG=b.dataset.lang; setCookie('lang', LANG); document.documentElement.lang = LANG==='de'?'de':'en'; applyLang(); if(lastHours.length) drawSparkline(lastHours); if(lastGroups) renderDays(lastGroups); subtitle.textContent = titleFrom(currentCond); }));
+  document.getElementById('btnCloseSearch').addEventListener('click',()=>{ modal.classList.remove('on'); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') modal.classList.remove('on'); });
+  // Close on overlay click
+  modal.addEventListener('mousedown', (e)=>{ if(e.target===modal){ modal.classList.remove('on'); }});
+
+  // Drawer interactions
+  btnMenu.addEventListener('click',()=> drawer.classList.toggle('open'));
+  document.addEventListener('click',(e)=>{ if(!drawer.contains(e.target) && !btnMenu.contains(e.target)) drawer.classList.remove('open'); });
+  btnDE.addEventListener('click',()=>{ LANG='de'; setCookie('lang','de'); applyLang(); if(lastHours.length) drawSparkline(lastHours); if(lastGroups) renderDays(lastGroups); subtitle.textContent = titleFrom(currentCond); });
+  btnEN.addEventListener('click',()=>{ LANG='en'; setCookie('lang','en'); applyLang(); if(lastHours.length) drawSparkline(lastHours); if(lastGroups) renderDays(lastGroups); subtitle.textContent = titleFrom(currentCond); });
 
   // Timeline nav buttons
-  function stepSize(){ return (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width'))||120)*4 }
-  $('#btnLeft').addEventListener('click',()=>{ tlScroll.scrollBy({left:-stepSize(), behavior:'smooth'}); });
-  $('#btnRight').addEventListener('click',()=>{ tlScroll.scrollBy({left:+stepSize(), behavior:'smooth'}); });
+  function stepSize(){ return (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--hour-width'))||132)*4 }
+  document.getElementById('btnLeft').addEventListener('click',()=>{ tlScroll.scrollBy({left:-stepSize(), behavior:'smooth'}); });
+  document.getElementById('btnRight').addEventListener('click',()=>{ tlScroll.scrollBy({left:+stepSize(), behavior:'smooth'}); });
 
+  // Search
   let searchTimer;
   searchInput.addEventListener('input', ()=>{
-    clearTimeout(searchTimer);
-    const q = searchInput.value.trim();
-    if(!q){ results.innerHTML=''; return; }
+    clearTimeout(searchTimer); const q = searchInput.value.trim(); if(!q){ results.innerHTML=''; return; }
     searchTimer = setTimeout(async()=>{
-      const r = await fetch(PHOTON.search(q));
-      const j = await r.json();
-      results.innerHTML = '';
-      (j.features||[]).forEach(f=>{
-        const p = f.properties; const lat = f.geometry.coordinates[1]; const lon = f.geometry.coordinates[0];
-        const label = [p.name||p.city||p.town||p.village, p.state||p.county, p.country].filter(Boolean).join(', ');
-        const el = document.createElement('div'); el.className='option';
-        el.innerHTML = `<div style="font:600 14px Inter">${label}</div><div class="muted" style="font:12px Inter;margin-top:2px">${p.osm_key||''} ${p.osm_value||''}</div>`;
-        el.addEventListener('click',async()=>{
-          modal.classList.remove('on'); setLocationLabel({name:label}); setCookie('loc', JSON.stringify({lat,lon,label})); await loadWeather(lat, lon);
-        });
+      const r = await fetch(PHOTON.search(q)); const j = await r.json(); results.innerHTML = '';
+      (j.features||[]).forEach(f=>{ const p = f.properties; const lat = f.geometry.coordinates[1]; const lon = f.geometry.coordinates[0]; const label = [p.name||p.city||p.town||p.village, p.state||p.county, p.country].filter(Boolean).join(', ');
+        const el = document.createElement('div'); el.className='option'; el.innerHTML = `<div style="font:800 14px Manrope">${label}</div><div class="muted" style="font:700 12px Manrope;margin-top:2px">${p.osm_key||''} ${p.osm_value||''}</div>`;
+        el.addEventListener('click',async()=>{ modal.classList.remove('on'); setLocationLabel({name:label}); setCookie('loc', JSON.stringify({lat,lon,label})); await loadWeather(lat, lon); });
         results.appendChild(el);
       });
     }, 250);
@@ -465,7 +476,6 @@
     const data = await r.json();
     if(!data || !data.weather) throw new Error('No weather');
 
-    // Split into previous + future
     const idx = data.weather.findIndex(w=> new Date(w.timestamp) >= now);
     const prev = idx>0 ? data.weather[idx-1] : data.weather[0];
     const future = data.weather.slice(idx);
@@ -475,19 +485,14 @@
 
     bigTemp.innerHTML = `${Math.round(cur.temperature)}<span class="deg">°C</span>`;
     subtitle.textContent = titleFrom(cond);
-    windVal.textContent = kmh(cur.wind_speed || 0).toFixed(1);
+    windVal.textContent = (Math.round((cur.wind_speed || 0)*3.6*10)/10).toFixed(1);
     humVal.textContent = Math.round(cur.relative_humidity || 0);
 
-    // hourly window: previous hour + next 7 hours (8 points); also build 48h for scrolling
-    const window8 = [prev, ...future.slice(0,7)];
+    // Stunden: vorherige + nächste -> 48h
     const hours48 = [prev, ...future].slice(0,48);
     if(hours48.length){ drawSparkline(hours48); tlScroll.scrollLeft = 0; }
 
-    // but keep labels so that the visible first 8 hours show the prev as first and current as second
-    // Scroll to make current (index 1) visible near left
-    setTimeout(()=>{ tlScroll.scrollLeft = 0; }, 0);
-
-    // weekly
+    // Weekly
     const byDay = groupByDay(future);
     renderDays(byDay);
   }
